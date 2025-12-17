@@ -5,7 +5,7 @@ cleanCSV is a small web app that cleans CSV datasets for machine learning. It fi
 ## Tech stack
 
 - Backend: FastAPI (Python)
-- Frontend: React (Vite/CRA)
+- Frontend: React Vite
 - Data: pandas, scikit-learn
 
 ## How it works
