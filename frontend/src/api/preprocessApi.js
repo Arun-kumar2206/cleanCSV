@@ -1,9 +1,19 @@
 import axios from "axios";
 
-const API_BASE_URL =
+const RAW_BASE_URL =
   (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_BASE_URL) ||
   (typeof process !== "undefined" && process.env && process.env.REACT_APP_API_BASE_URL) ||
   "";
+
+// Remove trailing slash from base; keep empty string to use same-origin in dev if desired
+const API_BASE_URL = (RAW_BASE_URL || "").replace(/\/+$/, "");
+
+const joinUrl = (base, path) => {
+  if (!base) return path;
+  const b = base.replace(/\/+$/, "");
+  const p = (path || "").replace(/^\/+/, "");
+  return `${b}/${p}`;
+};
 
 export const preprocessDataset = async (file) => {
   const formData = new FormData();
@@ -11,17 +21,21 @@ export const preprocessDataset = async (file) => {
 
   try {
     const response = await axios.post(
-      `${API_BASE_URL}/preprocess`,
+      joinUrl(API_BASE_URL, "/preprocess"),
       formData,
       {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        timeout: 60000, 
+        timeout: 60000,
       }
     );
 
-    return response.data;
+    const data = response.data || {};
+    if (data.download_url && data.download_url.startsWith("/")) {
+      data.download_url = joinUrl(API_BASE_URL, data.download_url);
+    }
+    return data;
   } catch (error) {
     const message =
       error?.response?.data?.detail ||

@@ -50,12 +50,21 @@ const Home = () => {
           </div>
 
           <div className="space-y-6">
-            <FileUpload file={file} setFile={setFile} />
+            <FileUpload
+              file={file}
+              setFile={(f) => {
+                setFile(f);
+                setSummary(null);
+                setPreview(null);
+                setDownloadUrl(null);
+                setError("");
+              }}
+            />
 
             <div className="flex gap-3">
               <button
                 onClick={handleSubmit}
-                disabled={loading}
+                disabled={loading || !file}
                 className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-white font-medium shadow-sm hover:bg-indigo-700 disabled:opacity-60 cursor-pointer"
               >
                 {loading ? "Processing..." : "Start Preprocessing"}

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 from app.routes.preprocess import router as preprocess_router
 
@@ -9,9 +10,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Allow one or more origins via env: FRONTEND_ORIGINS="https://your-vercel-app.vercel.app,https://www.yourdomain.com"
+_origins_env = os.getenv("FRONTEND_ORIGINS", "*")
+_allow_origins = ["*"] if _origins_env.strip() == "*" else [o.strip() for o in _origins_env.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_allow_origins,
     allow_credentials=False,  
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,3 +29,7 @@ def root():
     return {
         "message": "ML Dataset Preprocessor API is running"
     }
+
+@app.get("/healthz")
+def healthz():
+    return {"status": "ok"}
