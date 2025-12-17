@@ -10,7 +10,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Allow one or more origins via env: FRONTEND_ORIGINS="https://your-vercel-app.vercel.app,https://www.yourdomain.com"
 _origins_env = os.getenv("FRONTEND_ORIGINS", "*")
 _allow_origins = ["*"] if _origins_env.strip() == "*" else [o.strip() for o in _origins_env.split(",") if o.strip()]
 

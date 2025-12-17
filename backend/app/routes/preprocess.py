@@ -13,7 +13,7 @@ router = APIRouter()
 UPLOAD_DIR = "uploads"
 OUTPUT_DIR = "outputs"
 
-FILE_TTL_SECONDS = 600  # 10 minutes
+FILE_TTL_SECONDS = 600  
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -28,9 +28,6 @@ def delete_file(path: str):
 
 
 def cleanup_old_files(directory: str, ttl_seconds: int):
-    """
-    Delete files older than ttl_seconds in given directory
-    """
     now = time.time()
     for filename in os.listdir(directory):
         file_path = os.path.join(directory, filename)
@@ -45,7 +42,6 @@ def cleanup_old_files(directory: str, ttl_seconds: int):
 
 @router.post("/preprocess")
 async def preprocess_dataset(file: UploadFile = File(...)):
-    # Cleanup old files on every request
     cleanup_old_files(UPLOAD_DIR, FILE_TTL_SECONDS)
     cleanup_old_files(OUTPUT_DIR, FILE_TTL_SECONDS)
 
@@ -110,7 +106,6 @@ async def preprocess_dataset(file: UploadFile = File(...)):
     output_path = os.path.join(OUTPUT_DIR, output_filename)
     df.to_csv(output_path, index=False)
 
-    # Delete uploaded file immediately after processing
     os.remove(input_path)
 
     preview = df.head(10).to_dict(orient="records")
@@ -118,7 +113,7 @@ async def preprocess_dataset(file: UploadFile = File(...)):
     return {
         "summary": summary,
         "preview": preview,
-        "download_url": f"http://localhost:8000/download/{output_filename}"
+        "download_url": f"/download/{output_filename}"
     }
 
 
@@ -129,7 +124,6 @@ def download_file(filename: str, background_tasks: BackgroundTasks):
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
-    # Schedule deletion AFTER response is sent
     background_tasks.add_task(delete_file, file_path)
 
     return FileResponse(

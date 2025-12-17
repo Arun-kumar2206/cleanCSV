@@ -5,7 +5,6 @@ const RAW_BASE_URL =
   (typeof process !== "undefined" && process.env && process.env.REACT_APP_API_BASE_URL) ||
   "";
 
-// Remove trailing slash from base; keep empty string to use same-origin in dev if desired
 const API_BASE_URL = (RAW_BASE_URL || "").replace(/\/+$/, "");
 
 const joinUrl = (base, path) => {
