@@ -26,7 +26,6 @@ export const preprocessDataset = async (file) => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        timeout: 60000,
       }
     );
 
