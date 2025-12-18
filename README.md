@@ -2,6 +2,10 @@
 
 cleanCSV is a small web app that cleans CSV datasets for machine learning. It fills missing values and encodes categorical columns, then gives you a preview, a summary of changes, and a cleaned CSV to download.
 
+## Live
+
+You can view the website using this link: [cleanCSV](https://clean-csv-mauve.vercel.app/)
+
 ## Tech stack
 
 - Backend: FastAPI (Python)
