@@ -67,22 +67,25 @@ async def preprocess_dataset(file: UploadFile = File(...)):
 
     summary = {}
 
-    target_is_object = df.iloc[:, -1].dtype == "object"
+    target_col = df.columns[-1]
+    target_is_object = df[target_col].dtype == "object"
+
     if target_is_object:
-        X = df.iloc[:, :-1]
-        y = df.iloc[:, -1]
+        X = df.drop(columns=[target_col])
+        y = df[target_col]
         numerical_cols = X.select_dtypes(include=[np.number]).columns
         categorical_cols = X.select_dtypes(exclude=[np.number]).columns
 
         if y.isnull().sum() > 0:
             y_mode = y.mode()
             y_fill = y_mode.iloc[0] if not y_mode.empty else "missing"
-            df.iloc[:, -1].fillna(y_fill, inplace=True)
-            summary[y.name] = "Filled missing target values using mode"
-            y = df.iloc[:, -1]  
+            df[target_col].fillna(y_fill, inplace=True)
+            summary[target_col] = "Filled missing target values using mode"
+            y = df[target_col]
     else:
-        numerical_cols = df.select_dtypes(include=[np.number]).columns
-        categorical_cols = df.select_dtypes(exclude=[np.number]).columns
+        X = df.drop(columns=[target_col])
+        numerical_cols = X.select_dtypes(include=[np.number]).columns
+        categorical_cols = X.select_dtypes(exclude=[np.number]).columns
         y = None
 
     for col in numerical_cols:
@@ -134,8 +137,10 @@ async def preprocess_dataset(file: UploadFile = File(...)):
 
     if target_is_object:
         le = LabelEncoder()
-        df.iloc[:, -1] = le.fit_transform(df.iloc[:, -1])
-        summary[df.columns[-1]] = "Label encoded target variable"
+        df[target_col] = le.fit_transform(df[target_col])
+        summary[target_col] = "Label encoded target variable"
+
+    df = df[[c for c in df.columns if c != target_col] + [target_col]]
 
     output_filename = f"cleaned.csv"
     output_path = os.path.join(OUTPUT_DIR, output_filename)
